@@ -14,7 +14,6 @@ use crate::error::ConversionError;
 #[derive(Debug, Copy, Clone, DerivingVia)]
 #[deriving(Index, IndexMut, Iter, IntoIterator, Eq, Hash)]
 #[cfg_attr(feature = "arbitrary", derive(proptest_derive::Arbitrary))]
-#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 pub struct SizedBitset<const N: usize> {
     bits: [bool; N],
 }
@@ -375,6 +374,7 @@ sized_bitset_macros::generate_num_traits!();
 
 #[cfg(test)]
 mod test {
+    #[allow(unused)]
     use proptest::{prop_assert_eq, proptest};
 
     use super::*;
@@ -403,6 +403,7 @@ mod test {
 
     proptest! {
         #[test]
+        #[cfg(feature= "arbitrary")]
         fn flip(mut bitset: SizedBitset<4>) {
             let original = bitset;
             bitset.flip();
@@ -414,6 +415,7 @@ mod test {
 
     proptest! {
         #[test]
+        #[cfg(feature= "arbitrary")]
         fn flipped(bitset: SizedBitset<4>) {
             let original = bitset;
             for i in 0..4 {
