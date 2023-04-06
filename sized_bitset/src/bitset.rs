@@ -1,0 +1,337 @@
+//! # sized_bitset
+//!
+//! This library provides `SizedBitset` (statically-sized bitset) and functionality for its.
+//!
+
+use deriving_via::DerivingVia;
+use itertools::Itertools;
+
+/// Statically-sized Bitset
+#[derive(Debug, Copy, Clone, DerivingVia)]
+#[deriving(Index, IndexMut, Iter, IntoIterator, Eq, Hash)]
+#[cfg_attr(feature = "arbitrary", derive(proptest_derive::Arbitrary))]
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+pub struct SizedBitset<const N: usize> {
+    bits: [bool; N],
+}
+
+impl<const N: usize> SizedBitset<N> {
+    /// The number of bits that the bitset holds (= N).
+    #[allow(unused)]
+    const SIZE: usize = N;
+
+    /// Constructs [SizedBitset] from array of bool.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// const BITSET: SizedBitset<4> = SizedBitset::from_const([true, true, false, false]);
+    /// ```
+    pub const fn from_const(bits: [bool; N]) -> Self {
+        Self { bits }
+    }
+
+    /// Constructs [SizedBitset] from convertible array.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_array([1, 1, 0, 0]);
+    /// ```
+    pub fn from_array(bits: [impl Into<bool>; N]) -> Self {
+        Self {
+            bits: bits.map(Into::into),
+        }
+    }
+}
+
+impl<T: Into<bool> + Copy, const N: usize> From<[T; N]> for SizedBitset<N> {
+    /// Make [SizedBitset] from convertible array.
+    fn from(from: [T; N]) -> Self {
+        Self {
+            bits: from.map(|bit| bit.into()),
+        }
+    }
+}
+
+impl<T: Into<bool> + Copy, const N: usize> TryFrom<&[T]> for SizedBitset<N> {
+    type Error = core::array::TryFromSliceError;
+
+    /// Try make [SizedBitset] from convertible slice.
+    fn try_from(from: &[T]) -> Result<Self, Self::Error> {
+        Ok(Self {
+            bits: from
+                .iter()
+                .map(|b| (*b).into())
+                .collect_vec()
+                .as_slice()
+                .try_into()?,
+        })
+    }
+}
+
+/// Element access
+impl<const N: usize> SizedBitset<N> {
+    /// Checks if all bits are set to true.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_const([true, true, true, true]);
+    /// assert!(bitset.all());
+    /// ```
+    pub fn all(&self) -> bool {
+        self.bits.iter().all(|bit| *bit)
+    }
+
+    /// Checks if any bits are set to true.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_const([false, false, true, false]);
+    /// assert!(bitset.any());
+    /// ```
+    pub fn any(&self) -> bool {
+        self.bits.iter().any(|bit| *bit)
+    }
+
+    /// Checks if none bits are set to true.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_const([false, false, false, false]);
+    /// assert!(bitset.none());
+    /// ```
+    pub fn none(&self) -> bool {
+        self.bits.iter().all(|bit| !*bit)
+    }
+
+    /// Returns the number of bits set to true.
+    ///
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_const([true, false, true, false]);
+    /// assert_eq!(bitset.count(), 2);
+    /// ```
+    pub fn count(&self) -> usize {
+        self.bits.iter().filter(|bit| **bit).count()
+    }
+}
+
+/// Modifiers
+impl<const N: usize> SizedBitset<N> {
+    /// Returns [SizedBitset] that all bits are flipped.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_const([false, false, false, false]);
+    /// assert_eq!(bitset.flipped(), SizedBitset::from_const([true, true, true, true]));
+    /// ```
+    pub fn flipped(&self) -> Self {
+        Self {
+            bits: self.bits.map(std::ops::Not::not),
+        }
+    }
+
+    /// Flips all bits.
+    ///
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let mut bitset = SizedBitset::from_const([false, false, false, false]);
+    /// bitset.flip();
+    /// assert_eq!(bitset, SizedBitset::from_const([true, true, true, true]));
+    /// ```
+    pub fn flip(&mut self) {
+        self.bits = self.bits.map(std::ops::Not::not);
+    }
+
+    /// Sets the bit for the specified index to true.
+    ///
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let mut bitset = SizedBitset::from_const([false, false, false, false]);
+    /// bitset.set(1);
+    /// assert_eq!(bitset, SizedBitset::from_const([false, true, false, false]));
+    /// ```
+    pub fn set(&mut self, index: usize) {
+        self.bits[index] = true;
+    }
+
+    /// Sets all bits to true.
+    ///
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let mut bitset = SizedBitset::from_const([false, false, false, false]);
+    /// bitset.set_all();
+    /// assert_eq!(bitset, SizedBitset::from_const([true, true, true, true]));
+    /// ```
+    pub fn set_all(&mut self) {
+        self.bits = self.bits.map(|_| true);
+    }
+
+    /// Sets the bit for the specified index to false.
+    ///
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let mut bitset = SizedBitset::from_const([true, true, true, true]);
+    /// bitset.reset(1);
+    /// assert_eq!(bitset, SizedBitset::from_const([true, false, true, true]));
+    /// ```
+    pub fn reset(&mut self, index: usize) {
+        self.bits[index] = false;
+    }
+
+    /// Sets all bits to false.
+    ///
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let mut bitset = SizedBitset::from_const([true, true, true, true]);
+    /// bitset.reset_all();
+    /// assert_eq!(bitset, SizedBitset::from_const([false, false, false, false]));
+    /// ```
+    pub fn reset_all(&mut self) {
+        self.bits = self.bits.map(|_| true);
+    }
+}
+
+impl<const N: usize> core::ops::BitAnd for SizedBitset<N> {
+    type Output = Self;
+
+    /// Returns a [SizedBitset] containing the result of binary XOR on corresponding pairs of bits of `self` and `rhs`.
+    fn bitand(self, rhs: Self) -> Self::Output {
+        unsafe {
+            (0..N)
+                .map(|i| self.bits[i].bitand(rhs.bits[i]))
+                .collect_vec()
+                .as_slice()
+                .try_into()
+                .unwrap_unchecked()
+        }
+    }
+}
+
+impl<const N: usize> core::ops::BitOr for SizedBitset<N> {
+    type Output = Self;
+
+    /// Returns a [SizedBitset] containing the result of binary XOR on corresponding pairs of bits of `self` and `rhs`.
+    fn bitor(self, rhs: Self) -> Self::Output {
+        unsafe {
+            (0..N)
+                .map(|i| self.bits[i].bitor(rhs.bits[i]))
+                .collect_vec()
+                .as_slice()
+                .try_into()
+                .unwrap_unchecked()
+        }
+    }
+}
+
+impl<const N: usize> core::ops::BitXor for SizedBitset<N> {
+    type Output = Self;
+
+    /// Returns a [SizedBitset] containing the result of binary XOR on corresponding pairs of bits of `self` and `rhs`.
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        unsafe {
+            (0..N)
+                .map(|i| self.bits[i].bitxor(rhs.bits[i]))
+                .collect_vec()
+                .as_slice()
+                .try_into()
+                .unwrap_unchecked()
+        }
+    }
+}
+
+impl<const N: usize> core::ops::BitAndAssign for SizedBitset<N> {
+    /// Sets the bits to the result of binary AND on corresponding pairs of bits of `self` and `other`.
+    fn bitand_assign(&mut self, other: Self) {
+        for i in 0..N {
+            self.bits[i].bitand_assign(other.bits[i]);
+        }
+    }
+}
+
+impl<const N: usize> core::ops::BitOrAssign for SizedBitset<N> {
+    /// Sets the bits to the result of binary OR on corresponding pairs of bits of `self` and `other`.
+    fn bitor_assign(&mut self, other: Self) {
+        for i in 0..N {
+            self.bits[i].bitor_assign(other.bits[i]);
+        }
+    }
+}
+
+impl<const N: usize> core::ops::BitXorAssign for SizedBitset<N> {
+    /// Sets the bits to the result of binary XOR on corresponding pairs of bits of `self` and `other`.
+    fn bitxor_assign(&mut self, other: Self) {
+        for i in 0..N {
+            self.bits[i].bitxor_assign(other.bits[i]);
+        }
+    }
+}
+
+pub mod convert {
+    pub trait To8 {
+        fn to_u8(&self) -> u8;
+    }
+    pub trait To16 {
+        fn to_u16(&self) -> u16;
+    }
+    pub trait To32 {
+        fn to_u32(&self) -> u32;
+    }
+    pub trait To64 {
+        fn to_u64(&self) -> u64;
+    }
+    pub trait To128 {
+        fn to_u128(&self) -> u128;
+    }
+}
+
+sized_bitset_macros::generate_num_traits!();
+
+#[cfg(test)]
+mod test {
+    use proptest::{prop_assert_eq, proptest};
+
+    use super::*;
+
+    #[test]
+    fn from_array() {
+        const BITSET: SizedBitset<8> =
+            SizedBitset::from_const([true, true, true, true, true, true, true, true]);
+        for idx in 0..8 {
+            assert!(BITSET[idx]);
+        }
+    }
+
+    #[test]
+    fn to_u8() {
+        use convert::To8;
+        let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
+        assert_eq!(bitset.to_u8(), u8::MAX);
+    }
+
+    proptest! {
+        #[test]
+        fn flip(mut bitset: SizedBitset<4>) {
+            let original = bitset;
+            bitset.flip();
+            for i in 0..4 {
+                prop_assert_eq!(original[i], !bitset[i]);
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn flipped(bitset: SizedBitset<4>) {
+            let original = bitset;
+            for i in 0..4 {
+                prop_assert_eq!(original[i], !bitset.flipped()[i]);
+            }
+        }
+    }
+}
