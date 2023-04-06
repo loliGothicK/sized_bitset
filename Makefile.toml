@@ -15,6 +15,10 @@ install_crate = { crate_name = "cargo-nextst" }
 command = "cargo"
 args = [ "nextest", "run" ]
 
+[tasks.doc-test]
+command = "cargo"
+args = [ "test", "--doc" ]
+
 [tasks.lint]
 command = "cargo"
 args = [ "clippy", "--", "-D", "warnings" ]
@@ -25,4 +29,4 @@ command = "cargo"
 args = [ "fmt", "--", "--config-path=${REPOSITORY_ROOT}/.cargo-husky/hooks/rustfmt.toml", "--emit=files" ]
 
 [tasks.pretty]
-dependencies = ["fix", "test", "lint", "format"]
+dependencies = ["fix", "test", "doc-test", "lint", "format"]

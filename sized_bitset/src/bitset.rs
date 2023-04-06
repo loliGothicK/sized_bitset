@@ -131,6 +131,7 @@ impl<const N: usize> core::str::FromStr for SizedBitset<N> {
                 '1' => Ok(true),
                 _ => Err(ConversionError::FromStr(s.to_owned())),
             })
+            .rev()
             .collect::<Result<Vec<_>, _>>()?
             .as_slice()
             .try_into()?)
@@ -145,6 +146,7 @@ impl<const N: usize> core::fmt::Display for SizedBitset<N> {
             self.bits
                 .map(|bit| if bit { '1' } else { '0' })
                 .iter()
+                .rev()
                 .collect::<String>()
         )
     }
@@ -352,6 +354,66 @@ impl<const N: usize> core::ops::BitXorAssign for SizedBitset<N> {
     }
 }
 
+impl<const N: usize> core::ops::Shl<usize> for SizedBitset<N> {
+    type Output = Self;
+
+    /// Performs binary shift right.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::convert::To8;
+    /// use sized_bitset::bitset::SizedBitset;
+    ///
+    /// let bitset: SizedBitset<8> = "01110010".parse().unwrap();
+    /// assert_eq!((bitset << 1).to_u8(), 0b11100100);
+    /// ```
+    fn shl(self, rhs: usize) -> Self::Output {
+        if N <= rhs {
+            SizedBitset::new()
+        } else {
+            unsafe {
+                (0..rhs)
+                    .map(|_| false)
+                    .chain(self.bits[0..(N - rhs)].iter().cloned())
+                    .collect_vec()
+                    .as_slice()
+                    .try_into()
+                    .unwrap_unchecked()
+            }
+        }
+    }
+}
+
+impl<const N: usize> core::ops::Shr<usize> for SizedBitset<N> {
+    type Output = Self;
+
+    /// Performs binary shift left.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::convert::To8;
+    /// use sized_bitset::bitset::SizedBitset;
+    ///
+    /// let bitset: SizedBitset<8> = "01110010".parse().unwrap();
+    /// assert_eq!((bitset >> 1).to_u8(), 0b00111001);
+    /// ```
+    fn shr(self, rhs: usize) -> Self::Output {
+        if N <= rhs {
+            SizedBitset::new()
+        } else {
+            unsafe {
+                self.bits[rhs..]
+                    .iter()
+                    .cloned()
+                    .chain((0..rhs).map(|_| false))
+                    .collect_vec()
+                    .as_slice()
+                    .try_into()
+                    .unwrap_unchecked()
+            }
+        }
+    }
+}
 pub mod convert {
     pub trait To8 {
         fn to_u8(&self) -> u8;
@@ -391,13 +453,20 @@ mod test {
     #[test]
     fn to_u8() {
         use convert::To8;
-        let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
-        assert_eq!(bitset.to_u8(), u8::MAX);
+        {
+            let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
+            assert_eq!(bitset.to_u8(), u8::MAX);
+        }
+        {
+            let bitset =
+                SizedBitset::from_const([false, false, false, false, true, true, true, true]);
+            assert_eq!(bitset.to_u8(), u8::MAX - 15);
+        }
     }
 
     #[test]
     fn display() {
-        let bitset: SizedBitset<8> = "10101010".parse().unwrap();
+        let bitset: SizedBitset<8> = 0b10101010.into();
         assert_eq!(&bitset.to_string(), "10101010");
     }
 
