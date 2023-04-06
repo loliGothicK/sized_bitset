@@ -3,8 +3,12 @@
 //! This library provides `SizedBitset` (statically-sized bitset) and functionality for its.
 //!
 
+use std::fmt::Formatter;
+
 use deriving_via::DerivingVia;
 use itertools::Itertools;
+
+use crate::error::ConversionError;
 
 /// Statically-sized Bitset
 #[derive(Debug, Copy, Clone, DerivingVia)]
@@ -15,6 +19,7 @@ pub struct SizedBitset<const N: usize> {
     bits: [bool; N],
 }
 
+/// const functionalities
 impl<const N: usize> SizedBitset<N> {
     /// The number of bits that the bitset holds (= N).
     #[allow(unused)]
@@ -29,19 +34,6 @@ impl<const N: usize> SizedBitset<N> {
     /// ```
     pub const fn from_const(bits: [bool; N]) -> Self {
         Self { bits }
-    }
-
-    /// Constructs [SizedBitset] from convertible array.
-    ///
-    /// # Example
-    /// ```
-    /// use sized_bitset::bitset::SizedBitset;
-    /// let bitset = SizedBitset::from_array([1, 1, 0, 0]);
-    /// ```
-    pub fn from_array(bits: [impl Into<bool>; N]) -> Self {
-        Self {
-            bits: bits.map(Into::into),
-        }
     }
 }
 
@@ -67,6 +59,95 @@ impl<T: Into<bool> + Copy, const N: usize> TryFrom<&[T]> for SizedBitset<N> {
                 .as_slice()
                 .try_into()?,
         })
+    }
+}
+
+impl<const N: usize> Default for SizedBitset<N> {
+    /// Returns [SizedBitset] that all bits is false
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<const N: usize> SizedBitset<N> {
+    /// Returns [SizedBitset] that all bits is false
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::{convert::*, SizedBitset};
+    /// let bitset = SizedBitset::<8>::new();
+    ///
+    /// assert_eq!(bitset.to_u8(), 0b00000000);
+    /// ```
+    pub fn new() -> Self {
+        Self {
+            bits: unsafe {
+                (0..N)
+                    .map(|_| false)
+                    .collect_vec()
+                    .as_slice()
+                    .try_into()
+                    .unwrap_unchecked()
+            },
+        }
+    }
+
+    /// Constructs [SizedBitset] from convertible array.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from_array([true, true, false, false]);
+    /// ```
+    pub fn from_array(bits: [impl Into<bool>; N]) -> Self {
+        Self {
+            bits: bits.map(Into::into),
+        }
+    }
+
+    ///  Returns a String formatted as `true` => `one` and `false` => `zero`.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset = SizedBitset::from([true, true, false, false]);
+    ///
+    /// assert_eq!(bitset.to_string_with('a', 'b'), "aabb".to_owned());
+    /// ```
+    pub fn to_string_with(&self, one: char, zero: char) -> String {
+        self.bits
+            .map(|bit| if bit { one } else { zero })
+            .iter()
+            .collect::<String>()
+    }
+}
+
+impl<const N: usize> core::str::FromStr for SizedBitset<N> {
+    type Err = ConversionError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(s.chars()
+            .map(|bit| match bit {
+                '0' => Ok(false),
+                '1' => Ok(true),
+                _ => Err(ConversionError::FromStr(s.to_owned())),
+            })
+            .collect::<Result<Vec<_>, _>>()?
+            .as_slice()
+            .try_into()?)
+    }
+}
+
+impl<const N: usize> core::fmt::Display for SizedBitset<N> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "{}",
+            self.bits
+                .map(|bit| if bit { '1' } else { '0' })
+                .iter()
+                .collect::<String>()
+        )
     }
 }
 
@@ -193,7 +274,7 @@ impl<const N: usize> SizedBitset<N> {
     /// assert_eq!(bitset, SizedBitset::from_const([false, false, false, false]));
     /// ```
     pub fn reset_all(&mut self) {
-        self.bits = self.bits.map(|_| true);
+        self.bits = self.bits.map(|_| false);
     }
 }
 
@@ -312,6 +393,12 @@ mod test {
         use convert::To8;
         let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
         assert_eq!(bitset.to_u8(), u8::MAX);
+    }
+
+    #[test]
+    fn display() {
+        let bitset: SizedBitset<8> = "10101010".parse().unwrap();
+        assert_eq!(&bitset.to_string(), "10101010");
     }
 
     proptest! {
