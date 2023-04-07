@@ -3,8 +3,6 @@
 //! This library provides `SizedBitset` (statically-sized bitset) and functionality for its.
 //!
 
-use std::fmt::Formatter;
-
 use deriving_via::DerivingVia;
 use itertools::Itertools;
 
@@ -139,7 +137,7 @@ impl<const N: usize> core::str::FromStr for SizedBitset<N> {
 }
 
 impl<const N: usize> core::fmt::Display for SizedBitset<N> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
             "{}",
@@ -364,7 +362,7 @@ impl<const N: usize> core::ops::Shl<usize> for SizedBitset<N> {
     /// use sized_bitset::bitset::convert::To8;
     /// use sized_bitset::bitset::SizedBitset;
     ///
-    /// let bitset: SizedBitset<8> = "01110010".parse().unwrap();
+    /// let bitset: SizedBitset<8> = 0b01110010.into();
     /// assert_eq!((bitset << 1).to_u8(), 0b11100100);
     /// ```
     fn shl(self, rhs: usize) -> Self::Output {
@@ -394,7 +392,7 @@ impl<const N: usize> core::ops::Shr<usize> for SizedBitset<N> {
     /// use sized_bitset::bitset::convert::To8;
     /// use sized_bitset::bitset::SizedBitset;
     ///
-    /// let bitset: SizedBitset<8> = "01110010".parse().unwrap();
+    /// let bitset: SizedBitset<8> = 0b01110010.into();
     /// assert_eq!((bitset >> 1).to_u8(), 0b00111001);
     /// ```
     fn shr(self, rhs: usize) -> Self::Output {
@@ -414,6 +412,67 @@ impl<const N: usize> core::ops::Shr<usize> for SizedBitset<N> {
         }
     }
 }
+
+impl<const N: usize> core::ops::ShlAssign<usize> for SizedBitset<N> {
+    /// Performs binary shift right.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::convert::To8;
+    /// use sized_bitset::bitset::SizedBitset;
+    ///
+    /// let mut bitset: SizedBitset<8> = 0b01110011.into();
+    /// bitset <<= 2;
+    /// assert_eq!(bitset.to_u8(), 0b11001100);
+    /// ```
+    fn shl_assign(&mut self, rhs: usize) {
+        if rhs == 0 {
+            return;
+        }
+
+        if N <= rhs {
+            self.reset_all();
+        } else {
+            for i in (rhs..N).rev() {
+                self.bits[i] = self.bits[i - rhs];
+            }
+            for i in 0..rhs {
+                self.bits[i] = false;
+            }
+        }
+    }
+}
+
+impl<const N: usize> core::ops::ShrAssign<usize> for SizedBitset<N> {
+    /// Performs binary shift right.
+    ///
+    /// # Example
+    /// ```
+    /// use sized_bitset::bitset::convert::To8;
+    /// use sized_bitset::bitset::SizedBitset;
+    ///
+    /// let mut bitset: SizedBitset<8> = 0b01110010.into();
+    /// bitset >>= 2;
+    /// assert_eq!(bitset.to_u8(), 0b00011100);
+    /// ```
+    fn shr_assign(&mut self, rhs: usize) {
+        if rhs == 0 {
+            return;
+        }
+
+        if N <= rhs {
+            self.reset_all();
+        } else {
+            for i in rhs..N {
+                self.bits[i - rhs] = self.bits[i];
+            }
+            for i in (N - rhs)..N {
+                self.bits[i] = false;
+            }
+        }
+    }
+}
+
 pub mod convert {
     pub trait To8 {
         fn to_u8(&self) -> u8;
