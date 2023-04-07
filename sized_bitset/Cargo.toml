@@ -1,6 +1,6 @@
 [package]
 name = "sized_bitset"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["MitamaLab <mitama@mitama.tech>"]
 description = "statically-sized biset"
