@@ -1,8 +1,3 @@
-//! # sized_bitset
-//!
-//! This library provides `SizedBitset` (statically-sized bitset) and functionality for its.
-//!
-
 use deriving_via::DerivingVia;
 use itertools::Itertools;
 
@@ -23,6 +18,8 @@ impl<const N: usize> SizedBitset<N> {
     const SIZE: usize = N;
 
     /// Constructs [SizedBitset] from array of bool.
+    ///
+    /// It's for constant initialization.
     ///
     /// # Example
     /// ```
@@ -414,7 +411,7 @@ impl<const N: usize> core::ops::Shr<usize> for SizedBitset<N> {
 }
 
 impl<const N: usize> core::ops::ShlAssign<usize> for SizedBitset<N> {
-    /// Performs binary shift right.
+    /// Performs binary shift left and modify `self`.
     ///
     /// # Example
     /// ```
@@ -444,7 +441,7 @@ impl<const N: usize> core::ops::ShlAssign<usize> for SizedBitset<N> {
 }
 
 impl<const N: usize> core::ops::ShrAssign<usize> for SizedBitset<N> {
-    /// Performs binary shift right.
+    /// Performs binary shift right and modify `self`.
     ///
     /// # Example
     /// ```
