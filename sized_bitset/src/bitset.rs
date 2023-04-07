@@ -272,6 +272,44 @@ impl<const N: usize> SizedBitset<N> {
     pub fn reset_all(&mut self) {
         self.bits = self.bits.map(|_| false);
     }
+
+    /// Computes the result of bitwise left-rotating the bits of `self` by `s` positions.
+    /// This operation is also known as a [left circular shift](https://en.wikipedia.org/wiki/Circular_shift).
+    ///
+    /// ```
+    /// use sized_bitset::bitset::convert::To8;
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset: SizedBitset<8> = 0b00011101.into();
+    /// assert_eq!(bitset.rotl(2).to_u8(), 0b01110100);
+    /// ```
+    pub fn rotl(&self, s: usize) -> Self {
+        let r = s % N;
+
+        if r == 0 {
+            *self
+        } else {
+            (*self << r) | (*self >> (N - r))
+        }
+    }
+
+    /// Computes the result of bitwise right-rotating the bits of `self` by `s` positions.
+    /// This operation is also known as a [right circular shift](https://en.wikipedia.org/wiki/Circular_shift).
+    ///
+    /// ```
+    /// use sized_bitset::bitset::convert::To8;
+    /// use sized_bitset::bitset::SizedBitset;
+    /// let bitset: SizedBitset<8> = 0b00011101.into();
+    /// assert_eq!(bitset.rotr(2).to_u8(), 0b01000111);
+    /// ```
+    pub fn rotr(&self, s: usize) -> Self {
+        let r = s % N;
+
+        if r == 0 {
+            *self
+        } else {
+            (*self >> r) | (*self << (N - r))
+        }
+    }
 }
 
 impl<const N: usize> core::ops::BitAnd for SizedBitset<N> {
