@@ -6,7 +6,7 @@ use crate::error::ConversionError;
 /// Statically-sized Bitset
 #[derive(Debug, Copy, Clone, DerivingVia)]
 #[deriving(Index, IndexMut, Iter, IntoIterator, Eq, Hash)]
-#[cfg_attr(feature = "arbitrary", derive(proptest_derive::Arbitrary))]
+#[cfg_attr(any(test, feature = "arbitrary"), derive(proptest_derive::Arbitrary))]
 pub struct SizedBitset<const N: usize> {
     bits: [bool; N],
 }
@@ -530,7 +530,6 @@ sized_bitset_macros::generate_num_traits!();
 
 #[cfg(test)]
 mod test {
-    #[allow(unused)]
     use proptest::{prop_assert_eq, proptest};
 
     use super::*;
@@ -558,15 +557,17 @@ mod test {
         }
     }
 
-    #[test]
-    fn display() {
-        let bitset: SizedBitset<8> = 0b10101010.into();
-        assert_eq!(&bitset.to_string(), "10101010");
+    proptest! {
+        #[test]
+        fn display(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+
+            prop_assert_eq!(bitset.to_string(), format!("{bits:08b}"));
+        }
     }
 
     proptest! {
         #[test]
-        #[cfg(feature= "arbitrary")]
         fn flip(mut bitset: SizedBitset<4>) {
             let original = bitset;
             bitset.flip();
@@ -578,7 +579,6 @@ mod test {
 
     proptest! {
         #[test]
-        #[cfg(feature= "arbitrary")]
         fn flipped(bitset: SizedBitset<4>) {
             let original = bitset;
             for i in 0..4 {
