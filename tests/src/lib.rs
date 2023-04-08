@@ -1,10 +1,8 @@
-
 #[cfg(test)]
 mod test {
     use coverage_helper::test;
     use proptest::{prop_assert_eq, proptest};
-
-    use super::*;
+    use sized_bitset::SizedBitset;
 
     #[test]
     fn from_array() {
@@ -17,7 +15,7 @@ mod test {
 
     #[test]
     fn to_u8() {
-        use convert::To8;
+        use sized_bitset::convert::To8;
         {
             let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
             assert_eq!(bitset.to_u8(), u8::MAX);

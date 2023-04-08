@@ -23,7 +23,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// const BITSET: SizedBitset<4> = SizedBitset::from_const([true, true, false, false]);
     /// ```
     pub const fn from_const(bits: [bool; N]) -> Self {
@@ -68,7 +68,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::{convert::*, SizedBitset};
+    /// use sized_bitset::{convert::*, SizedBitset};
     /// let bitset = SizedBitset::<8>::new();
     ///
     /// assert_eq!(bitset.to_u8(), 0b00000000);
@@ -90,7 +90,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from_array([true, true, false, false]);
     /// ```
     pub fn from_array(bits: [impl Into<bool>; N]) -> Self {
@@ -103,7 +103,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from([true, true, false, false]);
     ///
     /// assert_eq!(bitset.to_string_with('a', 'b'), "aabb".to_owned());
@@ -153,7 +153,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from_const([true, true, true, true]);
     /// assert!(bitset.all());
     /// ```
@@ -165,7 +165,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from_const([false, false, true, false]);
     /// assert!(bitset.any());
     /// ```
@@ -177,7 +177,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from_const([false, false, false, false]);
     /// assert!(bitset.none());
     /// ```
@@ -188,7 +188,7 @@ impl<const N: usize> SizedBitset<N> {
     /// Returns the number of bits set to true.
     ///
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from_const([true, false, true, false]);
     /// assert_eq!(bitset.count(), 2);
     /// ```
@@ -203,7 +203,7 @@ impl<const N: usize> SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from_const([false, false, false, false]);
     /// assert_eq!(bitset.flipped(), SizedBitset::from_const([true, true, true, true]));
     /// ```
@@ -216,7 +216,7 @@ impl<const N: usize> SizedBitset<N> {
     /// Flips all bits.
     ///
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let mut bitset = SizedBitset::from_const([false, false, false, false]);
     /// bitset.flip();
     /// assert_eq!(bitset, SizedBitset::from_const([true, true, true, true]));
@@ -228,7 +228,7 @@ impl<const N: usize> SizedBitset<N> {
     /// Sets the bit for the specified index to true.
     ///
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let mut bitset = SizedBitset::from_const([false, false, false, false]);
     /// bitset.set(1);
     /// assert_eq!(bitset, SizedBitset::from_const([false, true, false, false]));
@@ -240,7 +240,7 @@ impl<const N: usize> SizedBitset<N> {
     /// Sets all bits to true.
     ///
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let mut bitset = SizedBitset::from_const([false, false, false, false]);
     /// bitset.set_all();
     /// assert_eq!(bitset, SizedBitset::from_const([true, true, true, true]));
@@ -252,7 +252,7 @@ impl<const N: usize> SizedBitset<N> {
     /// Sets the bit for the specified index to false.
     ///
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let mut bitset = SizedBitset::from_const([true, true, true, true]);
     /// bitset.reset(1);
     /// assert_eq!(bitset, SizedBitset::from_const([true, false, true, true]));
@@ -264,7 +264,7 @@ impl<const N: usize> SizedBitset<N> {
     /// Sets all bits to false.
     ///
     /// ```
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::SizedBitset;
     /// let mut bitset = SizedBitset::from_const([true, true, true, true]);
     /// bitset.reset_all();
     /// assert_eq!(bitset, SizedBitset::from_const([false, false, false, false]));
@@ -277,8 +277,8 @@ impl<const N: usize> SizedBitset<N> {
     /// This operation is also known as a [left circular shift](https://en.wikipedia.org/wiki/Circular_shift).
     ///
     /// ```
-    /// use sized_bitset::bitset::convert::To8;
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::convert::To8;
+    /// use sized_bitset::SizedBitset;
     /// let bitset: SizedBitset<8> = 0b00011101.into();
     /// assert_eq!(bitset.rotl(2).to_u8(), 0b01110100);
     /// ```
@@ -296,8 +296,8 @@ impl<const N: usize> SizedBitset<N> {
     /// This operation is also known as a [right circular shift](https://en.wikipedia.org/wiki/Circular_shift).
     ///
     /// ```
-    /// use sized_bitset::bitset::convert::To8;
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::convert::To8;
+    /// use sized_bitset::SizedBitset;
     /// let bitset: SizedBitset<8> = 0b00011101.into();
     /// assert_eq!(bitset.rotr(2).to_u8(), 0b01000111);
     /// ```
@@ -394,8 +394,8 @@ impl<const N: usize> core::ops::Shl<usize> for SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::convert::To8;
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::convert::To8;
+    /// use sized_bitset::SizedBitset;
     ///
     /// let bitset: SizedBitset<8> = 0b01110010.into();
     /// assert_eq!((bitset << 1).to_u8(), 0b11100100);
@@ -424,8 +424,8 @@ impl<const N: usize> core::ops::Shr<usize> for SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::convert::To8;
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::convert::To8;
+    /// use sized_bitset::SizedBitset;
     ///
     /// let bitset: SizedBitset<8> = 0b01110010.into();
     /// assert_eq!((bitset >> 1).to_u8(), 0b00111001);
@@ -453,8 +453,8 @@ impl<const N: usize> core::ops::ShlAssign<usize> for SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::convert::To8;
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::convert::To8;
+    /// use sized_bitset::SizedBitset;
     ///
     /// let mut bitset: SizedBitset<8> = 0b01110011.into();
     /// bitset <<= 2;
@@ -483,8 +483,8 @@ impl<const N: usize> core::ops::ShrAssign<usize> for SizedBitset<N> {
     ///
     /// # Example
     /// ```
-    /// use sized_bitset::bitset::convert::To8;
-    /// use sized_bitset::bitset::SizedBitset;
+    /// use sized_bitset::convert::To8;
+    /// use sized_bitset::SizedBitset;
     ///
     /// let mut bitset: SizedBitset<8> = 0b01110010.into();
     /// bitset >>= 2;
