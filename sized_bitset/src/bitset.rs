@@ -86,19 +86,6 @@ impl<const N: usize> SizedBitset<N> {
         }
     }
 
-    /// Constructs [SizedBitset] from convertible array.
-    ///
-    /// # Example
-    /// ```
-    /// use sized_bitset::SizedBitset;
-    /// let bitset = SizedBitset::from_array([true, true, false, false]);
-    /// ```
-    pub fn from_array(bits: [impl Into<bool>; N]) -> Self {
-        Self {
-            bits: bits.map(Into::into),
-        }
-    }
-
     ///  Returns a String formatted as `true` => `one` and `false` => `zero`.
     ///
     /// # Example

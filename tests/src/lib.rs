@@ -5,11 +5,52 @@ mod test {
     use sized_bitset::SizedBitset;
 
     #[test]
-    fn from_array() {
+    fn from_const() {
         const BITSET: SizedBitset<8> =
             SizedBitset::from_const([true, true, true, true, true, true, true, true]);
         for idx in 0..8 {
             assert!(BITSET[idx]);
+        }
+    }
+
+    #[derive(Copy, Clone)]
+    enum Switch {
+        On,
+        #[allow(unused)]
+        Off,
+    }
+
+    impl From<Switch> for bool {
+        fn from(value: Switch) -> Self {
+            match value {
+                Switch::On => true,
+                Switch::Off => false,
+            }
+        }
+    }
+
+    #[test]
+    fn from() {
+        use Switch::*;
+        let bitset: SizedBitset<8> = [On, On, On, On, On, On, On, On].into();
+        for idx in 0..8 {
+            assert!(bitset[idx]);
+        }
+    }
+
+    #[test]
+    fn default() {
+        {
+            let bitset: SizedBitset<8> = Default::default();
+            for idx in 0..8 {
+                assert!(!bitset[idx]);
+            }
+        }
+        {
+            let bitset = SizedBitset::<8>::new();
+            for idx in 0..8 {
+                assert!(!bitset[idx]);
+            }
         }
     }
 
