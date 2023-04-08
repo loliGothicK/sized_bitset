@@ -1,7 +1,10 @@
+#![cfg_attr(coverage_nightly, feature(no_coverage))]
+
 use proc_macro::TokenStream;
 use quote::quote;
 
 #[proc_macro]
+#[cfg_attr(coverage_nightly, no_coverage)]
 pub fn generate_num_traits(_: TokenStream) -> TokenStream {
     (1usize..=128usize)
         .map(|size| -> proc_macro2::TokenStream {
