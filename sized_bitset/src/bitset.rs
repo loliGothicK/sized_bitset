@@ -530,6 +530,7 @@ sized_bitset_macros::generate_num_traits!();
 
 #[cfg(test)]
 mod test {
+    use coverage_helper::test;
     use proptest::{prop_assert_eq, proptest};
 
     use super::*;
