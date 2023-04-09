@@ -8,3 +8,4 @@
 
 #/target
 #/Cargo.lock
+/tests/proptest-regressions/lib.txt
