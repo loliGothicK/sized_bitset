@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test {
     use coverage_helper::test;
-    use proptest::{prop_assert_eq, proptest};
+    use proptest::{prop_assert_eq, prop_assert_ne, proptest};
     use sized_bitset::{convert::*, SizedBitset};
 
     #[test]
@@ -87,6 +87,15 @@ mod test {
         fn all(mut bitset: SizedBitset<4>) {
             if bitset.all() {
                 prop_assert_eq!(bitset.to_u8(), 15);
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn any(mut bitset: SizedBitset<4>) {
+            if bitset.any() {
+                prop_assert_ne!(bitset.to_u8(), 0);
             }
         }
     }
