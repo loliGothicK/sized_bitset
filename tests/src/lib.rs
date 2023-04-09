@@ -111,6 +111,13 @@ mod test {
 
     proptest! {
         #[test]
+        fn count(mut bitset: SizedBitset<8>) {
+            prop_assert_eq!(bitset.count(), bitset.to_string().chars().filter(|b| b == &'1').count());
+        }
+    }
+
+    proptest! {
+        #[test]
         fn flip(mut bitset: SizedBitset<4>) {
             let original = bitset;
             bitset.flip();
