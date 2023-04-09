@@ -7,7 +7,7 @@
 //! - constant initialization
 //!
 //! ```
-//! use sized_bitset::bitset::SizedBitset;
+//! use sized_bitset::SizedBitset;
 //! const BITSET: SizedBitset<4> = SizedBitset::from_const([true, true, false, false]);
 //! ```
 //!
@@ -16,7 +16,7 @@
 //! `From<u{N}> SizedBitset<{M}>` is defined if and only if `N <= M`.
 //!
 //! ```
-//! use sized_bitset::bitset::SizedBitset;
+//! use sized_bitset::SizedBitset;
 //! let bitset: SizedBitset<8> = 0b10101010.into();
 //! ```
 //!
@@ -26,7 +26,7 @@
 //!
 //! ```
 //!
-//! use sized_bitset::bitset::SizedBitset;
+//! use sized_bitset::SizedBitset;
 //! let bitset: SizedBitset<4> = [true, true, true, true].as_slice().try_into().unwrap();
 //! ```
 //!
@@ -36,7 +36,7 @@
 //!
 //! ```
 //!
-//! use sized_bitset::bitset::SizedBitset;
+//! use sized_bitset::SizedBitset;
 //! let bitset: SizedBitset<4> = "1010".parse().unwrap();
 //! ```
 //!
@@ -67,5 +67,7 @@
 //! ```
 //!
 
-pub mod bitset;
+mod bitset;
 pub mod error;
+
+pub use bitset::*;

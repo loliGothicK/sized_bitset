@@ -1,2 +1,2 @@
 [workspace]
-members = ["sized_bitset", "sized_bitset_macros"]
+members = ["sized_bitset", "sized_bitset_macros", "tests"]
