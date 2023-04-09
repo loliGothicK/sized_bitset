@@ -4,6 +4,7 @@ mod test {
 
     use coverage_helper::test;
     use proptest::{prop_assert, prop_assert_eq, prop_assert_ne, proptest};
+    use regex::Regex;
     use sized_bitset::{convert::*, SizedBitset};
 
     #[test]
@@ -69,10 +70,15 @@ mod test {
 
     proptest! {
         #[test]
-        fn from_str(bits: u8) {
-            let bitset: SizedBitset<8> = format!("{bits:08b}").as_str().parse().unwrap();
-
-            prop_assert_eq!(bitset.to_u8(), bits);
+        fn from_str(input in "[0-9]{8}") {
+            let bitset: Result<SizedBitset<8>, _> = input.parse();
+            let valid = Regex::new("[0-1]{8}").unwrap();
+            if valid.is_match(&input) {
+                let bits: u8 = format!("0b{input}").as_str().parse().unwrap();
+                prop_assert_eq!(bitset.unwrap().to_u8(), bits);
+            } else {
+                prop_assert!(bitset.is_err());
+            }
         }
     }
 
@@ -190,7 +196,7 @@ mod test {
         #[test]
         fn rotl(bits: u8) {
             let bitset: SizedBitset<8> = bits.into();
-            for i in 0..=8 {
+            for i in 0..=16 {
                 prop_assert_eq!(bitset.rotl(i).to_u8(), bits.rotate_left(i as u32))
             }
         }
@@ -200,7 +206,7 @@ mod test {
         #[test]
         fn rotr(bits: u8) {
             let bitset: SizedBitset<8> = bits.into();
-            for i in 0..=8 {
+            for i in 0..=16 {
                 prop_assert_eq!(bitset.rotr(i).to_u8(), bits.rotate_right(i as u32))
             }
         }
@@ -292,6 +298,9 @@ mod test {
             for i in 0..8 {
                 prop_assert_eq!(bitset.shr(i).to_u8(), bits.shr(i));
             }
+            for i in 8..16 {
+                prop_assert_eq!(bitset.shr(i).to_u8(), 0);
+            }
         }
     }
 
@@ -303,6 +312,11 @@ mod test {
                 let mut bitset = bitset;
                 bitset >>= i;
                 prop_assert_eq!(bitset.to_u8(), bits.shr(i));
+            }
+            for i in 8..16 {
+                let mut bitset = bitset;
+                bitset >>= i;
+                prop_assert_eq!(bitset.to_u8(), 0);
             }
         }
     }
