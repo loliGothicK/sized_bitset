@@ -177,6 +177,26 @@ mod test {
         }
     }
 
+    proptest! {
+        #[test]
+        fn rotl(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            for i in 0..=8 {
+                prop_assert_eq!(bitset.rotl(i).to_u8(), bits.rotate_left(i as u32))
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn rotr(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            for i in 0..=8 {
+                prop_assert_eq!(bitset.rotr(i).to_u8(), bits.rotate_right(i as u32))
+            }
+        }
+    }
+
     #[test]
     fn to_u8() {
         use sized_bitset::convert::To8;
