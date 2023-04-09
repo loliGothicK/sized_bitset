@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test {
     use coverage_helper::test;
-    use proptest::{prop_assert_eq, prop_assert_ne, proptest};
+    use proptest::{prop_assert, prop_assert_eq, prop_assert_ne, proptest};
     use sized_bitset::{convert::*, SizedBitset};
 
     #[test]
@@ -133,6 +133,26 @@ mod test {
             let original = bitset;
             for i in 0..4 {
                 prop_assert_eq!(original[i], !bitset.flipped()[i]);
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn set(mut bitset: SizedBitset<4>) {
+            for i in 0..4 {
+                bitset.set(i);
+                prop_assert!(bitset[i]);
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn set_all(mut bitset: SizedBitset<4>) {
+            bitset.set_all();
+            for i in 0..4 {
+                prop_assert!(bitset[i]);
             }
         }
     }
