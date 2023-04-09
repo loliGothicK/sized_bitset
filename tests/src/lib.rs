@@ -54,17 +54,13 @@ mod test {
         }
     }
 
-    #[test]
-    fn to_u8() {
-        use sized_bitset::convert::To8;
-        {
-            let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
-            assert_eq!(bitset.to_u8(), u8::MAX);
-        }
-        {
-            let bitset =
-                SizedBitset::from_const([false, false, false, false, true, true, true, true]);
-            assert_eq!(bitset.to_u8(), u8::MAX - 15);
+    proptest! {
+        #[test]
+        fn to_string_with(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            let expected = format!("{bits:08b}").replace('1', "!").replace('0', "?");
+
+            prop_assert_eq!(bitset.to_string_with('!', '?'), expected);
         }
     }
 
@@ -95,6 +91,20 @@ mod test {
             for i in 0..4 {
                 prop_assert_eq!(original[i], !bitset.flipped()[i]);
             }
+        }
+    }
+
+    #[test]
+    fn to_u8() {
+        use sized_bitset::convert::To8;
+        {
+            let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
+            assert_eq!(bitset.to_u8(), u8::MAX);
+        }
+        {
+            let bitset =
+                SizedBitset::from_const([false, false, false, false, true, true, true, true]);
+            assert_eq!(bitset.to_u8(), u8::MAX - 15);
         }
     }
 }

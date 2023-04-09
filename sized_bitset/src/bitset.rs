@@ -93,12 +93,13 @@ impl<const N: usize> SizedBitset<N> {
     /// use sized_bitset::SizedBitset;
     /// let bitset = SizedBitset::from([true, true, false, false]);
     ///
-    /// assert_eq!(bitset.to_string_with('a', 'b'), "aabb".to_owned());
+    /// assert_eq!(bitset.to_string_with('a', 'b'), "bbaa".to_owned());
     /// ```
     pub fn to_string_with(&self, one: char, zero: char) -> String {
         self.bits
             .map(|bit| if bit { one } else { zero })
             .iter()
+            .rev()
             .collect::<String>()
     }
 }
