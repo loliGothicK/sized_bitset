@@ -102,6 +102,15 @@ mod test {
 
     proptest! {
         #[test]
+        fn none(mut bitset: SizedBitset<4>) {
+            if bitset.none() {
+                prop_assert_eq!(bitset.to_u8(), 0);
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
         fn flip(mut bitset: SizedBitset<4>) {
             let original = bitset;
             bitset.flip();
