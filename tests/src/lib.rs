@@ -2,7 +2,7 @@
 mod test {
     use coverage_helper::test;
     use proptest::{prop_assert_eq, proptest};
-    use sized_bitset::SizedBitset;
+    use sized_bitset::{convert::*, SizedBitset};
 
     #[test]
     fn from_const() {
@@ -61,6 +61,15 @@ mod test {
             let expected = format!("{bits:08b}").replace('1', "!").replace('0', "?");
 
             prop_assert_eq!(bitset.to_string_with('!', '?'), expected);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn from_str(bits: u8) {
+            let bitset: SizedBitset<8> = format!("{bits:08b}").as_str().parse().unwrap();
+
+            prop_assert_eq!(bitset.to_u8(), bits);
         }
     }
 
