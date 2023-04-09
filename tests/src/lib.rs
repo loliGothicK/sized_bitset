@@ -13,6 +13,7 @@ mod test {
         for idx in 0..8 {
             assert!(BITSET[idx]);
         }
+        let _ = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
     }
 
     #[derive(Copy, Clone)]
