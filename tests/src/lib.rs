@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use std::ops::{BitAnd, BitOr, BitXor};
+    use std::ops::{BitAnd, BitOr, BitXor, Shl, Shr};
 
     use coverage_helper::test;
     use proptest::{prop_assert, prop_assert_eq, prop_assert_ne, proptest};
@@ -253,6 +253,50 @@ mod test {
             let rhs_bitset: SizedBitset<8> = rhs.into();
             lhs_bitset ^= rhs_bitset;
             prop_assert_eq!(lhs_bitset.to_u8(), lhs.bitxor(rhs));
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn shl(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            for i in 0..8 {
+                prop_assert_eq!(bitset.shl(i).to_u8(), bits.shl(i));
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn shl_assign(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            for i in 0..8 {
+                let mut bitset = bitset;
+                bitset <<= i;
+                prop_assert_eq!(bitset.to_u8(), bits.shl(i));
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn shr(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            for i in 0..8 {
+                prop_assert_eq!(bitset.shr(i).to_u8(), bits.shr(i));
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn shr_assign(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            for i in 0..8 {
+                let mut bitset = bitset;
+                bitset >>= i;
+                prop_assert_eq!(bitset.to_u8(), bits.shr(i));
+            }
         }
     }
 
