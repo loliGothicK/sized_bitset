@@ -197,17 +197,43 @@ mod test {
         }
     }
 
-    #[test]
-    fn to_u8() {
-        use sized_bitset::convert::To8;
-        {
-            let bitset = SizedBitset::from_const([true, true, true, true, true, true, true, true]);
-            assert_eq!(bitset.to_u8(), u8::MAX);
+    proptest! {
+        #[test]
+        fn to_u8(bits: u8) {
+            let bitset: SizedBitset<8> = bits.into();
+            prop_assert_eq!(bitset.to_u8(), bits);
         }
-        {
-            let bitset =
-                SizedBitset::from_const([false, false, false, false, true, true, true, true]);
-            assert_eq!(bitset.to_u8(), u8::MAX - 15);
+    }
+
+    proptest! {
+        #[test]
+        fn to_u16(bits: u16) {
+            let bitset: SizedBitset<16> = bits.into();
+            prop_assert_eq!(bitset.to_u16(), bits);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn to_u32(bits: u32) {
+            let bitset: SizedBitset<32> = bits.into();
+            prop_assert_eq!(bitset.to_u32(), bits);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn to_u64(bits: u64) {
+            let bitset: SizedBitset<64> = bits.into();
+            prop_assert_eq!(bitset.to_u64(), bits);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn to_u128(bits: u128) {
+            let bitset: SizedBitset<128> = bits.into();
+            prop_assert_eq!(bitset.to_u128(), bits);
         }
     }
 }
