@@ -276,6 +276,9 @@ mod test {
             for i in 0..8 {
                 prop_assert_eq!(bitset.shl(i).to_u8(), bits.shl(i));
             }
+            for i in 8..16 {
+                prop_assert!(bitset.shl(i).none());
+            }
         }
     }
 
@@ -287,6 +290,11 @@ mod test {
                 let mut bitset = bitset;
                 bitset <<= i;
                 prop_assert_eq!(bitset.to_u8(), bits.shl(i));
+            }
+            for i in 8..16 {
+                let mut bitset = bitset;
+                bitset <<= i;
+                prop_assert!(bitset.none());
             }
         }
     }
