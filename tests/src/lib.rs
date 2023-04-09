@@ -196,7 +196,7 @@ mod test {
         #[test]
         fn rotl(bits: u8) {
             let bitset: SizedBitset<8> = bits.into();
-            for i in 0..=16 {
+            for i in 0..=128 {
                 prop_assert_eq!(bitset.rotl(i).to_u8(), bits.rotate_left(i as u32))
             }
         }
@@ -206,7 +206,7 @@ mod test {
         #[test]
         fn rotr(bits: u8) {
             let bitset: SizedBitset<8> = bits.into();
-            for i in 0..=16 {
+            for i in 0..=128 {
                 prop_assert_eq!(bitset.rotr(i).to_u8(), bits.rotate_right(i as u32))
             }
         }
