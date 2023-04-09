@@ -157,6 +157,26 @@ mod test {
         }
     }
 
+    proptest! {
+        #[test]
+        fn reset(mut bitset: SizedBitset<4>) {
+            for i in 0..4 {
+                bitset.reset(i);
+                prop_assert!(!bitset[i]);
+            }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn reset_all(mut bitset: SizedBitset<4>) {
+            bitset.reset_all();
+            for i in 0..4 {
+                prop_assert!(!bitset[i]);
+            }
+        }
+    }
+
     #[test]
     fn to_u8() {
         use sized_bitset::convert::To8;
