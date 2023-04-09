@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use std::ops::BitAnd;
+    use std::ops::{BitAnd, BitOr};
 
     use coverage_helper::test;
     use proptest::{prop_assert, prop_assert_eq, prop_assert_ne, proptest};
@@ -215,6 +215,25 @@ mod test {
             let rhs_bitset: SizedBitset<8> = rhs.into();
             lhs_bitset &= rhs_bitset;
             prop_assert_eq!(lhs_bitset.to_u8(), lhs.bitand(rhs));
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn bitor(lhs: u8, rhs: u8) {
+            let lhs_bitset: SizedBitset<8> = lhs.into();
+            let rhs_bitset: SizedBitset<8> = rhs.into();
+            prop_assert_eq!(lhs_bitset.bitor(rhs_bitset).to_u8(), lhs.bitor(rhs));
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn bitor_assign(lhs: u8, rhs: u8) {
+            let mut lhs_bitset: SizedBitset<8> = lhs.into();
+            let rhs_bitset: SizedBitset<8> = rhs.into();
+            lhs_bitset |= rhs_bitset;
+            prop_assert_eq!(lhs_bitset.to_u8(), lhs.bitor(rhs));
         }
     }
 
