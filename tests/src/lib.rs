@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod test {
+    use std::ops::BitAnd;
+
     use coverage_helper::test;
     use proptest::{prop_assert, prop_assert_eq, prop_assert_ne, proptest};
     use sized_bitset::{convert::*, SizedBitset};
@@ -194,6 +196,25 @@ mod test {
             for i in 0..=8 {
                 prop_assert_eq!(bitset.rotr(i).to_u8(), bits.rotate_right(i as u32))
             }
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn bitand(lhs: u8, rhs: u8) {
+            let lhs_bitset: SizedBitset<8> = lhs.into();
+            let rhs_bitset: SizedBitset<8> = rhs.into();
+            prop_assert_eq!(lhs_bitset.bitand(rhs_bitset).to_u8(), lhs.bitand(rhs));
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn bitand_assign(lhs: u8, rhs: u8) {
+            let mut lhs_bitset: SizedBitset<8> = lhs.into();
+            let rhs_bitset: SizedBitset<8> = rhs.into();
+            lhs_bitset &= rhs_bitset;
+            prop_assert_eq!(lhs_bitset.to_u8(), lhs.bitand(rhs));
         }
     }
 
