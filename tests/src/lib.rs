@@ -340,4 +340,10 @@ mod test {
             prop_assert_eq!(bitset.to_u128(), bits);
         }
     }
+
+    #[test]
+    fn from_u8() {
+        const BITSET: SizedBitset<32> = SizedBitset::<32>::from_u8(u8::MAX);
+        assert_eq!(BITSET.to_u32(), u8::MAX as u32);
+    }
 }

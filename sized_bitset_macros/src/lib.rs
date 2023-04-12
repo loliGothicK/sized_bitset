@@ -1,31 +1,145 @@
-#![cfg_attr(coverage_nightly, feature(no_coverage))]
-
 use proc_macro::TokenStream;
 use quote::quote;
 
 #[proc_macro]
-#[cfg_attr(coverage_nightly, no_coverage)]
 pub fn generate_num_traits(_: TokenStream) -> TokenStream {
     (1usize..=128usize)
         .map(|size| -> proc_macro2::TokenStream {
             let index = syn::Index::from(size);
-            let from_body = quote! {
-                unsafe {
-                    (0..#index)
-                        .map(|i| ((bits >> i) % 2) == 1)
-                        .into_iter()
-                        .collect_vec()
-                        .as_slice()
-                        .try_into()
-                        .unwrap_unchecked()
-                }
+
+            let const_from_u8 = {
+                let initializers = (0..size).map(|i| {
+                    let idx = syn::Index::from(i);
+                    if i < 8 {
+                        quote! {
+                            ((bits >> #idx) % 2) == 1
+                        }
+                    } else {
+                        quote! {
+                            false
+                        }
+                    }
+                });
+                (size >= 8).then(|| {
+                    quote! {
+                        impl SizedBitset<#index> {
+                            pub const fn from_u8(bits: u8) -> Self {
+                                Self::from_const([ #(#initializers),* ])
+                            }
+                        }
+                    }
+                })
+            };
+
+            let const_from_u16 = {
+                let initializers = (0..size).map(|i| {
+                    let idx = syn::Index::from(i);
+                    if i < 16 {
+                        quote! {
+                            ((bits >> #idx) % 2) == 1
+                        }
+                    } else {
+                        quote! {
+                            false
+                        }
+                    }
+                });
+                (size >= 16).then(|| {
+                    quote! {
+                        impl SizedBitset<#index> {
+                            pub const fn from_u16(bits: u16) -> Self {
+                                Self::from_const([ #(#initializers),* ])
+                            }
+                        }
+                    }
+                })
+            };
+
+            let const_from_u32 = {
+                let initializers = (0..size).map(|i| {
+                    let idx = syn::Index::from(i);
+                    if i < 32 {
+                        quote! {
+                            ((bits >> #idx) % 2) == 1
+                        }
+                    } else {
+                        quote! {
+                            false
+                        }
+                    }
+                });
+                (size >= 32).then(|| {
+                    quote! {
+                        impl SizedBitset<#index> {
+                            pub const fn from_u32(bits: u32) -> Self {
+                                Self::from_const([ #(#initializers),* ])
+                            }
+                        }
+                    }
+                })
+            };
+
+            let const_from_u64 = {
+                let initializers = (0..size).map(|i| {
+                    let idx = syn::Index::from(i);
+                    if i < 64 {
+                        quote! {
+                            ((bits >> #idx) % 2) == 1
+                        }
+                    } else {
+                        quote! {
+                            false
+                        }
+                    }
+                });
+                (size >= 64).then(|| {
+                    quote! {
+                        impl SizedBitset<#index> {
+                            pub const fn from_u64(bits: u64) -> Self {
+                                Self::from_const([ #(#initializers),* ])
+                            }
+                        }
+                    }
+                })
+            };
+
+            let const_from_u128 = {
+                let initializers = (0..size).map(|i| {
+                    let idx = syn::Index::from(i);
+                    if i < 128 {
+                        quote! {
+                            ((bits >> #idx) % 2) == 1
+                        }
+                    } else {
+                        quote! {
+                            false
+                        }
+                    }
+                });
+                (size >= 128).then(|| {
+                    quote! {
+                        impl SizedBitset<#index> {
+                            pub const fn from_u128(bits: u128) -> Self {
+                                Self::from_const([ #(#initializers),* ])
+                            }
+                        }
+                    }
+                })
             };
 
             let from_u8 = (size >= 8).then(|| {
                 quote! {
                     impl From<u8> for SizedBitset<#index> {
                         fn from(bits: u8) -> Self {
-                            #from_body
+                            unsafe {
+                                (0..#index)
+                                    .map(|i| if 8 > i { ((bits >> i) % 2) == 1 } else { false })
+                                    .into_iter()
+                                    .collect_vec()
+                                    .as_slice()
+                                    .try_into()
+                                    .unwrap_unchecked()
+                            }
                         }
                     }
                 }
@@ -35,7 +149,15 @@ pub fn generate_num_traits(_: TokenStream) -> TokenStream {
                 quote! {
                     impl From<u16> for SizedBitset<#index> {
                         fn from(bits: u16) -> Self {
-                            #from_body
+                            unsafe {
+                                (0..#index)
+                                    .map(|i| if 16 > i { ((bits >> i) % 2) == 1 } else { false })
+                                    .into_iter()
+                                    .collect_vec()
+                                    .as_slice()
+                                    .try_into()
+                                    .unwrap_unchecked()
+                            }
                         }
                     }
                 }
@@ -45,7 +167,15 @@ pub fn generate_num_traits(_: TokenStream) -> TokenStream {
                 quote! {
                     impl From<u32> for SizedBitset<#index> {
                         fn from(bits: u32) -> Self {
-                            #from_body
+                            unsafe {
+                                (0..#index)
+                                    .map(|i| if 32 > i { ((bits >> i) % 2) == 1 } else { false })
+                                    .into_iter()
+                                    .collect_vec()
+                                    .as_slice()
+                                    .try_into()
+                                    .unwrap_unchecked()
+                            }
                         }
                     }
                 }
@@ -55,7 +185,15 @@ pub fn generate_num_traits(_: TokenStream) -> TokenStream {
                 quote! {
                     impl From<u64> for SizedBitset<#index> {
                         fn from(bits: u64) -> Self {
-                            #from_body
+                            unsafe {
+                                (0..#index)
+                                    .map(|i| if 64 > i { ((bits >> i) % 2) == 1 } else { false })
+                                    .into_iter()
+                                    .collect_vec()
+                                    .as_slice()
+                                    .try_into()
+                                    .unwrap_unchecked()
+                            }
                         }
                     }
                 }
@@ -65,7 +203,15 @@ pub fn generate_num_traits(_: TokenStream) -> TokenStream {
                 quote! {
                     impl From<u128> for SizedBitset<#index> {
                         fn from(bits: u128) -> Self {
-                            #from_body
+                            unsafe {
+                                (0..#index)
+                                    .map(|i| if 128 > i { ((bits >> i) % 2) == 1 } else { false })
+                                    .into_iter()
+                                    .collect_vec()
+                                    .as_slice()
+                                    .try_into()
+                                    .unwrap_unchecked()
+                            }
                         }
                     }
                 }
@@ -167,6 +313,11 @@ pub fn generate_num_traits(_: TokenStream) -> TokenStream {
                 quote! {#from_u32},
                 quote! {#from_u64},
                 quote! {#from_u128},
+                quote! {#const_from_u8},
+                quote! {#const_from_u16},
+                quote! {#const_from_u32},
+                quote! {#const_from_u64},
+                quote! {#const_from_u128},
             ]
             .into_iter()
             .collect()
