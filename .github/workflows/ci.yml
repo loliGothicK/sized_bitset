@@ -20,7 +20,7 @@ jobs:
           args: --config-path=./.cargo-husky/hooks/rustfmt.toml
 
   test:
-    needs: [ rustfmt, clippy ]
+    needs: [ rustfmt ]
     name: "Test: { target: ${{ matrix.os }}, channel: ${{ matrix.rust }} }"
     runs-on: ${{matrix.os}}
     strategy:
