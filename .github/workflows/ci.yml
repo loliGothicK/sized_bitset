@@ -7,7 +7,7 @@ jobs:
     name: rustfmt check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -54,7 +54,7 @@ jobs:
       # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Rust ${{ matrix.rust }}
         uses: actions-rs/toolchain@v1
@@ -124,7 +124,7 @@ jobs:
     name: coverage via llvm-cov
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --workspace --codecov --ignore-filename-regex lib --output-path codecov.json
