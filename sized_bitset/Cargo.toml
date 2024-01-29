@@ -15,7 +15,7 @@ arbitrary = ["proptest", "proptest-derive"]
 deriving_via = "1.4.0"
 proptest = { version = "1.2.0", optional = true }
 proptest-derive = { version = "0.3.0", optional = true }
-itertools = "0.10.5"
+itertools = "0.12.1"
 thiserror = "1.0.40"
 sized_bitset_macros = "0.3.0"
 
