@@ -16,7 +16,7 @@ deriving_via = "1.4.0"
 proptest = { version = "1.2.0", optional = true }
 proptest-derive = { version = "0.3.0", optional = true }
 itertools = "0.10.5"
-thiserror = "1.0.40"
+thiserror = "1.0.58"
 sized_bitset_macros = "0.3.0"
 
 [dev-dependencies]
